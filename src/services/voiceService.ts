@@ -50,7 +50,7 @@ class VoiceService {
 
   constructor() {
     // Get API key from environment variable
-    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    const apiKey = "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";
     
     if (!apiKey) {
       console.error('OpenAI API key is not defined in environment variables');
