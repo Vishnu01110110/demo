@@ -27,25 +27,19 @@ export function Navbar() {
   };
 
   return (
-    <div className="w-full fixed top-0 z-50" style={{ background: 'var(--background)' }}>
-      <nav
-        className={cn(
-          isOpen 
-            ? "w-full bg-gray-100" 
-            : "w-full max-w-2xl mx-auto mt-4 rounded-full bg-[#f9fafb]",
-          "transition-all duration-300"
-        )}
-        style={!isOpen ? {
-          boxShadow: "5px 5px 15px rgba(0, 0, 0, 0.15), -5px -5px 15px rgba(255, 255, 255, 0.95)",
-        } : {}}
-      >
+    <div className="w-full fixed top-0 z-50">
+      <nav className={cn(
+        "w-full max-w-2xl mx-auto mt-4",
+        isOpen ? "" : "rounded-full shadow-[5px_5px_15px_rgba(0,0,0,0.15),-5px_-5px_15px_rgba(255,255,255,0.95)]",
+        "bg-gradient-to-br from-gray-200 via-gray-100 to-white/90 backdrop-blur-sm transition-all duration-300"
+      )}>
         <div className="flex items-center justify-between px-6 py-3 md:px-8">
           {/* Logo/Brand */}
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-purple-500">
               <CircleUserRound className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-purple-500 bg-clip-text text-transparent hover:opacity-80 transition-opacity cursor-pointer">
+            <span className="text-xl font-bold bg-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity cursor-pointer">
               Demo
             </span>
           </div>
@@ -90,8 +84,8 @@ export function Navbar() {
         {/* Mobile Menu */}
         <div
           className={cn(
-            'md:hidden overflow-hidden transition-all duration-300 ease-in-out border-t border-gray-200',
-            isOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
+            'md:hidden fixed left-0 right-0 top-[56px] bg-gray-100/80 backdrop-blur-sm shadow-lg border-t border-gray-200/50 transition-all duration-300 ease-in-out',
+            isOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
           )}
         >
           <div className="px-4 py-2">

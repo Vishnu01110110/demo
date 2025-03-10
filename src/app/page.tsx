@@ -5,11 +5,6 @@ export default function Home() {
     <>
       <Navbar />
       <main className="bg-gray-100 min-h-screen">
-        {/* Hero Section */}
-        <section className="h-screen flex items-center justify-center">
-          <h1 className="text-4xl font-bold text-gray-900">Welcome</h1>
-        </section>
-
         {/* Chat Section */}
         <section id="chat" className="min-h-screen flex items-center justify-center">
           <h2 className="text-3xl font-semibold text-gray-800">Chat Section</h2>
