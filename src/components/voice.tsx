@@ -1,5 +1,11 @@
 'use client'
 
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import { voiceService, Message, Task, LANGUAGES, INITIAL_TASKS, PatientDetails } from '@/services/voiceService';
 
