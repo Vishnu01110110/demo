@@ -8,9 +8,9 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
-    { name: 'Chat', href: '#chat' },
-    { name: 'Voice', href: '#voice' },
     { name: 'Backend', href: '#backend' },
+    { name: 'Voice', href: '#voice' },
+    { name: 'Chat', href: '#chat' },
   ];
 
   // Smooth scroll handler
