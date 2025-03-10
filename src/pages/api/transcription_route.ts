@@ -17,7 +17,7 @@ if (fs.existsSync(envFilePath)) {
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 // Fix the formidable import
-import { formidable } from 'formidable';
+import formidable from 'formidable';
 import FormData from 'form-data';
 
 // Tell Next.js not to parse the body as JSON
