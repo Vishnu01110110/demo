@@ -1,5 +1,5 @@
-Voice +Cchat Agent Experiment
-Thiss project was me playing around seeing what people are doing in this space what is a minimum viable product i could come upp with and research what improvements and lmitations are there to explore in these pipelines.
+Voice +Chat Agent Experiment
+This project was me playing around seeing what people are doing in this space what is a minimum viable product i could come up with and research what improvements and lmitations are there to explore in these pipelines.
 
 Tech
 ChatGPT API for most uses (Voice Assistant + Chat Assistant)
