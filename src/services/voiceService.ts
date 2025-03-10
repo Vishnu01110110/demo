@@ -1,3 +1,4 @@
+// Updated VoiceService.ts to use API routes
 import axios from 'axios';
 
 // Types
@@ -11,15 +12,12 @@ export interface Task {
   completed: boolean;
 }
 
-// New type for patient details
 export interface PatientDetails {
   phone?: string;
   fullName?: string;
-  // You can add more fields as needed (address, DOB, etc.)
 }
 
-// Supported languages mapping
-export const LANGUAGES: Record<string, string> = {
+export const LANGUAGES = {
   "English": "en",
   "Spanish": "es",
   "French": "fr",
@@ -32,8 +30,7 @@ export const LANGUAGES: Record<string, string> = {
   "Portuguese": "pt"
 };
 
-// Initial tasks list
-export const INITIAL_TASKS: Task[] = [
+export const INITIAL_TASKS = [
   { name: "Greeting, find out reason for call", completed: false },
   { name: "Collect patient demographic information", completed: false },
   { name: "Collect insurance information", completed: false },
@@ -42,53 +39,18 @@ export const INITIAL_TASKS: Task[] = [
   { name: "Check availability for pre-op consult(Currently hard coded)", completed: false }
 ];
 
-/**
- * VoiceService class to handle all OpenAI API interactions
- */
 class VoiceService {
-  private apiKey: string;
-
-  constructor() {
-    // Get API key from environment variable
-    const apiKey = "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";
-    
-    if (!apiKey) {
-      console.error('OpenAI API key is not defined in environment variables');
-    }
-    
-    this.apiKey = apiKey || '';
-  }
-
   /**
    * Generate a greeting based on the selected language
    */
   async generateGreeting(language: string): Promise<string> {
     try {
-      const response = await axios.post(
-        'https://api.openai.com/v1/chat/completions',
-        {
-          model: "gpt-4o",
-          messages: [
-            {
-              role: "system",
-              content: `You are a medical intake assistant for a clinic. Respond in ${language} only.`
-            },
-            {
-              role: "user",
-              content: `Generate a brief, friendly greeting in ${language} for a patient calling a medical clinic. Introduce yourself as an AI assistant who will help collect information for their radiology appointment.`
-            }
-          ],
-          temperature: 0.7
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      const response = await axios.post('/api/chat_route', {
+        systemPrompt: `You are a medical intake assistant for a clinic. Respond in ${language} only.`,
+        userPrompt: `Generate a brief, friendly greeting in ${language} for a patient calling a medical clinic. Introduce yourself as an AI assistant who will help collect information for their radiology appointment.`
+      });
       
-      return response.data.choices[0].message.content;
+      return response.data.message;
     } catch (error) {
       console.error('Error generating greeting:', error);
       throw new Error(`Failed to generate greeting: ${error instanceof Error ? error.message : String(error)}`);
@@ -102,23 +64,19 @@ class VoiceService {
     try {
       const formData = new FormData();
       formData.append('file', audioBlob, 'recording.webm');
-      formData.append('model', 'whisper-1');
       
-      const langCode = LANGUAGES[language];
-      if (langCode !== 'en') {
-        formData.append('language', langCode);
-      }
+      // Type-safe way to access LANGUAGES object
+      const langCode = language in LANGUAGES 
+        ? LANGUAGES[language as keyof typeof LANGUAGES]
+        : 'en';
+        
+      formData.append('language', langCode);
       
-      const response = await axios.post(
-        'https://api.openai.com/v1/audio/transcriptions',
-        formData,
-        {
-          headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'multipart/form-data'
-          }
+      const response = await axios.post('/api/transcription_route', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
         }
-      );
+      });
       
       return response.data.text;
     } catch (error) {
@@ -129,7 +87,6 @@ class VoiceService {
 
   /**
    * Process text with GPT to understand user input and generate responses.
-   * Now includes already collected patient details in the system prompt.
    */
   async processWithLLM(
     text: string, 
@@ -151,54 +108,39 @@ class VoiceService {
         content: text
       });
       
-      // Build a string to display already collected details
       const detailsString = `
-  Already collected details:
-    Phone: ${patientDetails?.phone || 'N/A'}
-    Name: ${patientDetails?.fullName || 'N/A'}
-      `;
+Already collected details:
+  Phone: ${patientDetails?.phone || 'N/A'}
+  Name: ${patientDetails?.fullName || 'N/A'}
+`;
+
+      const systemPrompt = `
+You are a medical intake assistant for a clinic.
+Respond in ${language} only.
+
+Current task: ${currentTask}
+
+${detailsString}
+
+Complete these tasks in order:
+- Collect the patient's phone number
+- Collect patient demographic information (name, DOB, address)
+- Collect insurance information (provider, policy number)
+- Verify insurance eligibility
+- Confirm imaging requirements
+- Check availability for pre-op consultation
+
+If you already have the phone number and name, DO NOT ask for them again.
+Be professional, friendly, and HIPAA compliant. Ask ONE question at a time.
+Keep responses brief and conversational.
+`;
       
-      const response = await axios.post(
-        'https://api.openai.com/v1/chat/completions',
-        {
-          model: "gpt-4o",
-          messages: [
-            {
-              role: "system",
-              content: `
-  You are a medical intake assistant for a clinic.
-  Respond in ${language} only.
-  
-  Current task: ${currentTask}
-  
-  ${detailsString}
-  
-  Complete these tasks in order:
-  - Collect the patient's phone number
-  - Collect patient demographic information (name, DOB, address)
-  - Collect insurance information (provider, policy number)
-  - Verify insurance eligibility
-  - Confirm imaging requirements
-  - Check availability for pre-op consultation
-  
-  If you already have the phone number and name, DO NOT ask for them again.
-  Be professional, friendly, and HIPAA compliant. Ask ONE question at a time.
-  Keep responses brief and conversational.
-              `
-            },
-            ...processedConversations
-          ],
-          temperature: 0.7
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      const response = await axios.post('/api/chat_route', {
+        systemPrompt,
+        conversationHistory: processedConversations
+      });
       
-      return response.data.choices[0].message.content;
+      return response.data.message;
     } catch (error) {
       console.error('Error processing with LLM:', error);
       throw new Error(`Failed to process with LLM: ${error instanceof Error ? error.message : String(error)}`);
@@ -210,21 +152,11 @@ class VoiceService {
    */
   async textToSpeech(text: string): Promise<ArrayBuffer> {
     try {
-      const response = await axios.post(
-        'https://api.openai.com/v1/audio/speech',
-        {
-          model: "tts-1",
-          voice: "nova",
-          input: text
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json'
-          },
-          responseType: 'arraybuffer'
-        }
-      );
+      const response = await axios.post('/api/tts_route', {
+        text
+      }, {
+        responseType: 'arraybuffer'
+      });
       
       return response.data;
     } catch (error) {
@@ -233,10 +165,7 @@ class VoiceService {
     }
   }
 
-  /**
-   * Detect task completion based on keywords.
-   * (This function still marks tasks as completed; details are extracted separately.)
-   */
+  // These client-side methods don't need API keys
   detectTaskCompletion(tasks: Task[], userText: string, assistantText: string, patientDetails: PatientDetails): Task[] {
     const updatedTasks = [...tasks];
     const combinedLower = (userText + ' ' + assistantText).toLowerCase();
@@ -246,17 +175,14 @@ class VoiceService {
       return updatedTasks;
     }
     
-    // Better task completion detection logic
     switch(currentTaskIndex) {
       case 0: // "Greeting, find out reason for call"
-        // Mark as complete if we have a phone number
         if (patientDetails.phone) {
           updatedTasks[0].completed = true;
         }
         break;
       
       case 1: // "Collect patient demographic information"
-        // Mark as complete if we have a name
         if (patientDetails.fullName) {
           updatedTasks[1].completed = true;
         }
@@ -295,9 +221,6 @@ class VoiceService {
     return updatedTasks;
   }
 
-  /**
-   * Extract patient details such as phone number and full name from conversation text.
-   */
   extractPatientDetails(userText: string, assistantText: string): PatientDetails {
     const details: PatientDetails = {};
     const combinedText = userText + " " + assistantText;
