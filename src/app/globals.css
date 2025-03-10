@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f9fafb;
+  --foreground: #111827;
+}
+
+/* Override dark mode preference */
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: light !important;
+  }
+  
+  :root {
+    --background: #f9fafb; 
+    --foreground: #111827;
+  }
+}
+
+/* Force the background color on all levels */
+html, 
+body {
+  background-color: var(--background) !important;
+  color: var(--foreground);
+  min-height: 100vh;
+}
