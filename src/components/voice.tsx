@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { voiceService, Message, Task, LANGUAGES, INITIAL_TASKS, PatientDetails } from '@/services/voiceService';
 
 const PRELOADED_SCRIPTS: Record<string, string> = {
@@ -45,23 +45,8 @@ const VoiceAssistant: React.FC = () => {
     isRecordingRef.current = isRecording;
   }, [isRecording]);
 
-  useEffect(() => {
-    setIsClient(true);
-    checkMicPermission();
-    return () => {
-      if (audioStreamRef.current) {
-        audioStreamRef.current.getTracks().forEach(track => track.stop());
-      }
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-        audioContextRef.current.close();
-      }
-      if (volumeMonitorRef.current) {
-        cancelAnimationFrame(volumeMonitorRef.current);
-      }
-    };
-  }, []);
-
-  const checkMicPermission = async () => {
+  // Wrap checkMicPermission in useCallback and include it in the dependency array.
+  const checkMicPermission = useCallback(async () => {
     if (!isClient) return;
     try {
       if (navigator.permissions && navigator.permissions.query) {
@@ -88,7 +73,23 @@ const VoiceAssistant: React.FC = () => {
       console.error('Error checking microphone permission:', error);
       setMicPermission('unknown');
     }
-  };
+  }, [isClient]);
+
+  useEffect(() => {
+    setIsClient(true);
+    checkMicPermission();
+    return () => {
+      if (audioStreamRef.current) {
+        audioStreamRef.current.getTracks().forEach(track => track.stop());
+      }
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+        audioContextRef.current.close();
+      }
+      if (volumeMonitorRef.current) {
+        cancelAnimationFrame(volumeMonitorRef.current);
+      }
+    };
+  }, [checkMicPermission]);
 
   const getAudioDevices = async () => {
     if (!isClient) return;
@@ -141,14 +142,14 @@ const VoiceAssistant: React.FC = () => {
     addMessage('system', content);
   };
 
-  const startAssistant = async () => {
+  const strtAssistant = async () => {
     if (!isClient) return;
     if (micPermission !== 'granted') {
       await requestMicrophonePermission();
       if (micPermission !== 'granted') {
         return;
       }
-    }
+    }a
     setConversations([]);
     setTasks(INITIAL_TASKS.map(task => ({ ...task, completed: false })));
     setIsRecording(true);
@@ -310,7 +311,7 @@ const VoiceAssistant: React.FC = () => {
             
             // Pass in patientDetails so far into the LLM prompt
             setStatus("Generating response...");
-            const response = await voiceService.processWithLLM(
+            const response: string = await voiceService.processWithLLM(
               transcript, 
               conversations, 
               currentLanguage, 
@@ -511,6 +512,9 @@ const VoiceAssistant: React.FC = () => {
         {/* Status Bar */}
         <div className="px-4 py-2 bg-gray-100 border-t flex items-center">
           <div className="text-gray-700 mr-2">{status}</div>
+          {isSpeaking && (
+            <div className="text-sm text-blue-600 mr-2">Speaking...</div>
+          )}
           {isListening && (
             <div className="flex-grow flex items-center">
               <div className="w-full bg-gray-200 rounded-full h-2.5">
