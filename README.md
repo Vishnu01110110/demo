@@ -1,36 +1,19 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Voice +Cchat Agent Experiment
+Thiss project was me playing around seeing what people are doing in this space what is a minimum viable product i could come upp with and research what improvements and lmitations are there to explore in these pipelines.
 
-## Getting Started
+Tech
+ChatGPT API for most uses (Voice Assistant + Chat Assistant)
+Whisper API for Speech-to-Text
+TTS API for Text-to-Speech
+Next js
+Type Script
+python to play around with and fine tune models
 
-First, run the development server:
+Current Models
+Voice Model: Fine-tuned to extract ONLY phone number and name
+Chat Assistant: LLM that looks, prioritizes, and assesses cases/seems
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Just experimenting with different APIs to see how fast they were and how effective fine-tuning is.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Actual Motivation
+Wanted to experiment with different RAG models and actually make something much cooler, but underestimated the complexity and started too late.
