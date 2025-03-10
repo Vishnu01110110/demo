@@ -13,7 +13,7 @@ from openai import OpenAI
 
 # ========== API KEY CONFIGURATION ==========
 # IMPORTANT: Delete this key after testing and use environment variables in production
-API_KEY = "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"  # Set your API key here if not using environment variables
+API_KEY = "API HERE"  # Set your API key here if not using environment variables
 
 # Initialize OpenAI client with either environment variable or direct API key
 try:

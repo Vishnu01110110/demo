@@ -145,9 +145,6 @@ const VoiceAssistant: React.FC = () => {
     if (!isClient) return;
     if (micPermission !== 'granted') {
       await requestMicrophonePermission();
-      if (micPermission !== 'granted') {
-        return;
-      }
     }
     setConversations([]);
     setTasks(INITIAL_TASKS.map(task => ({ ...task, completed: false })));

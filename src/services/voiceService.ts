@@ -1,8 +1,5 @@
 import axios from 'axios';
 
-// API key pre-configured (will be removed later)
-const API_KEY = "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";
-
 // Types
 export interface Message {
   role: 'assistant' | 'user' | 'system';
@@ -51,8 +48,15 @@ export const INITIAL_TASKS: Task[] = [
 class VoiceService {
   private apiKey: string;
 
-  constructor(apiKey: string = API_KEY) {
-    this.apiKey = apiKey;
+  constructor() {
+    // Get API key from environment variable
+    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    
+    if (!apiKey) {
+      console.error('OpenAI API key is not defined in environment variables');
+    }
+    
+    this.apiKey = apiKey || '';
   }
 
   /**
